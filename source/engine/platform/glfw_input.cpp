@@ -6,6 +6,7 @@ namespace logicario::engine::platform
 {
     GlfwInput::GlfwInput(std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> loggerSink) : m_logger{"input", {loggerSink}}, m_keyStates{0} 
 	{
+		m_logger.set_level((spdlog::level::level_enum)SPDLOG_ACTIVE_LEVEL);
 		m_logger.info("Input initialized");
 	}
 
@@ -18,7 +19,7 @@ namespace logicario::engine::platform
 
     void GlfwInput::notifyKeyCode(KeyCode keyCode, bool state)
     {
-        if (keyCode == KeyCode::None) [[unlikely]]
+        if (keyCode == KeyCode::None)
         {
 			m_logger.debug("Unknown key. Can`t notify");
             return;

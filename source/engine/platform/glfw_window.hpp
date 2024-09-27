@@ -2,12 +2,12 @@
 
 #include <engine/window.hpp>
 #include <engine/platform/glfw_input.hpp>
+#include <engine/platform/Ogl_renderer.hpp>
 
 #include <GLFW/glfw3.h>
 #include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-#include <optional>
 #include <memory>
 
 namespace logicario::engine::platform
@@ -26,6 +26,7 @@ namespace logicario::engine::platform
         GlfwWindow(const GlfwWindowParams& params);
         void update() override;
         Input& getInput() override;
+        Renderer& getRenderer() override;
 
     private:
         using WindowHandleDeleter = void (*)(GLFWwindow*);
@@ -34,15 +35,17 @@ namespace logicario::engine::platform
     private:
         void initGlfw();
         void createWindow(const GlfwWindowParams& params);
-		void setCallbacks();
+        void setCallbacks();
+		void swap();
 
-	private:
-		static void windowCloseCallback(GLFWwindow* window);
-		static void windowKeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods);
+    private:
+        static void windowCloseCallback(GLFWwindow* window);
+        static void windowKeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods);
 
     private:
         WindowHandle m_windowHandle;
-        GlfwInput m_input;
         spdlog::logger m_logger;
+        std::unique_ptr<GlfwInput> m_input;
+        std::unique_ptr<OglRenderer> m_renderer;
     };
 }

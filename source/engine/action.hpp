@@ -41,6 +41,7 @@ private:
     std::mutex m_mutex;
 
 public:
+
     ActionSubscribe add(ActionHandler actionHandler)
     {
         std::unique_lock lock{m_mutex};

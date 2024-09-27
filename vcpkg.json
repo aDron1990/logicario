@@ -1,7 +1,10 @@
 {
   "dependencies": [
+    "crossguid",
+    "glew",
     "glfw3",
+    "glm",
     "spdlog",
-    "crossguid"
+    "stb"
   ]
 }

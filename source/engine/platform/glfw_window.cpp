@@ -1,13 +1,18 @@
 #include <engine/platform/glfw_window.hpp>
 
+#include <functional>
+
 namespace logicario::engine::platform
 {
-    GlfwWindow::GlfwWindow(const GlfwWindowParams& params) : m_windowHandle{nullptr, nullptr}, m_input{params.loggerSink}, m_logger{"window", {params.loggerSink}}
+    GlfwWindow::GlfwWindow(const GlfwWindowParams& params) : m_windowHandle{nullptr, nullptr}, m_logger{"window", {params.loggerSink}}
     {
         initGlfw();
         createWindow(params);
-		setCallbacks();
+        setCallbacks();
         m_logger.info("Window initialized");
+		glfwMakeContextCurrent(m_windowHandle.get());
+		m_renderer = std::move(std::make_unique<OglRenderer>(std::bind(&GlfwWindow::swap, this), params.loggerSink));
+		m_input = std::move(std::make_unique<GlfwInput>(params.loggerSink));
     }
 
     void GlfwWindow::initGlfw()
@@ -36,22 +41,32 @@ namespace logicario::engine::platform
         }};
     }
 
-	void GlfwWindow::setCallbacks()
-	{
-		glfwSetWindowUserPointer(m_windowHandle.get(), this);
+    void GlfwWindow::setCallbacks()
+    {
+        glfwSetWindowUserPointer(m_windowHandle.get(), this);
         glfwSetWindowCloseCallback(m_windowHandle.get(), windowCloseCallback);
         glfwSetKeyCallback(m_windowHandle.get(), windowKeyCallback);
-	}
+    }
 
     void GlfwWindow::update()
     {
         glfwPollEvents();
     }
 
+	void GlfwWindow::swap()
+	{
+		glfwSwapBuffers(m_windowHandle.get());
+	}
+
     Input& GlfwWindow::getInput()
     {
-        return m_input;
+        return *m_input;
     }
+
+	Renderer& GlfwWindow::getRenderer()
+	{
+		return *m_renderer;
+	}
 
     void GlfwWindow::windowCloseCallback(GLFWwindow* window)
     {
@@ -63,6 +78,6 @@ namespace logicario::engine::platform
     {
         if (action == GLFW_REPEAT) return;
         GlfwWindow* wnd = (GlfwWindow*)glfwGetWindowUserPointer(window);
-        wnd->m_input.setKey(key, action);
+        wnd->m_input->setKey(key, action);
     }
 }
