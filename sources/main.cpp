@@ -14,6 +14,7 @@ int main()
 {
     auto stdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     spdlog::logger logger{"main", {stdoutSink}};
+	logger.set_level((spdlog::level::level_enum)SPDLOG_ACTIVE_LEVEL);
     logger.info("{:-^80}", "Starting");
     try
     {
@@ -34,12 +35,19 @@ int main()
 		auto fragment = filesystem.loadText("resources/shaders/main/fragment.glsl").value();
 		auto& shader = renderer.createShader(vertex, fragment);
 
-		logger.info("shader id is {}", shader.getID());
+		auto image = filesystem.loadImage("resources/images/test.png").value();
+		auto& texture = renderer.createTexture(image);
+
+		logger.debug("shader id is {}", shader.getID());
+		logger.debug("texture id is {}", texture.getID());
+
+		texture.bind();
 
         while (run)
         {
             window.update();
             renderer.clear({0.5, 0.6, 0.7, 1.0});
+			renderer.drawTestTriangle(shader);
             renderer.swap();
         }
     }

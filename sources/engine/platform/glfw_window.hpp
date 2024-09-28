@@ -36,16 +36,18 @@ namespace logicario::engine::platform
         void initGlfw();
         void createWindow(const GlfwWindowParams& params);
         void setCallbacks();
-		void swap();
+        void swap();
 
     private:
         static void windowCloseCallback(GLFWwindow* window);
         static void windowKeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods);
+        static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
     private:
         WindowHandle m_windowHandle;
         spdlog::logger m_logger;
         std::unique_ptr<GlfwInput> m_input;
         std::unique_ptr<OglRenderer> m_renderer;
+        ActionSubscribe m_resizedActionSubForRenderer;
     };
 }

@@ -24,14 +24,14 @@ namespace logicario::engine::platform
         OglShader& operator=(const OglShader&) = delete;
 
     private:
-        using ShaderModuleDeleter = void (*)(GLuint*);
-        using ShaderModule = std::unique_ptr<GLuint, ShaderModuleDeleter>;
-        ShaderModule compileShader(const Text& shaderCode, uint16_t shaderType);
-        void linkProgram(ShaderModule vertex, ShaderModule fragment);
+        using GlShaderDeleter = void (*)(GLuint*);
+        using GlShader = std::unique_ptr<GLuint, GlShaderDeleter>;
+        GlShader compileShader(const Text& shaderCode, uint16_t shaderType);
+        void linkProgram(GlShader vertex, GlShader fragment);
 
     private:
-        using ProgramDeleter = void (*)(GLuint*);
-        using Program = std::unique_ptr<GLuint, ProgramDeleter>;
-        Program m_program;
+        using GlProgramDeleter = void (*)(GLuint*);
+        using GlProgram = std::unique_ptr<GLuint, GlProgramDeleter>;
+        GlProgram m_program;
     };
 }

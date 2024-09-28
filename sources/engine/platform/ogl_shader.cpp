@@ -14,7 +14,7 @@ namespace logicario::engine::platform
         linkProgram(std::move(vertex), std::move(fragment));
     }
 
-    OglShader::ShaderModule OglShader::compileShader(const Text& shaderCode, uint16_t shaderType)
+    OglShader::GlShader OglShader::compileShader(const Text& shaderCode, uint16_t shaderType)
     {
         int success{};
         auto shader = glCreateShader(shaderType);
@@ -32,11 +32,11 @@ namespace logicario::engine::platform
             std::string error = std::string{"Failed to compile shader:\n"} + infoLog;
             throw std::runtime_error{error};
         }
-        auto shaderModule = ShaderModule{new GLuint{shader}, [](GLuint* id) { glDeleteShader(*id); }};
+        auto shaderModule = GlShader{new GLuint{shader}, [](GLuint* id) { glDeleteShader(*id); }};
         return shaderModule;
     }
 
-    void OglShader::linkProgram(ShaderModule vertex, ShaderModule fragment)
+    void OglShader::linkProgram(GlShader vertex, GlShader fragment)
     {
         int success{};
         GLuint program = glCreateProgram();
@@ -54,7 +54,7 @@ namespace logicario::engine::platform
             std::string error = std::string{"Failed to link program:\n"} + infoLog;
             throw std::runtime_error{error};
         }
-        m_program = Program{new GLuint{program}, [](GLuint* id) { glDeleteProgram(*id); }};
+        m_program = GlProgram{new GLuint{program}, [](GLuint* id) { glDeleteProgram(*id); }};
     }
 
     void OglShader::bind()

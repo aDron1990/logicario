@@ -5,6 +5,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 
 namespace logicario::engine::platform
 {
@@ -21,9 +22,9 @@ namespace logicario::engine::platform
 			return std::nullopt;
 		}
         Image image;
+		stbi_set_flip_vertically_on_load(0);
         auto data = stbi_load(path.c_str(), &image.width, &image.height, &image.channels, 0);
-        image.data = {data, data + (image.width * image.height)};
-        stbi_image_free(data);
+		image.data = Binary{data, data + 1 + (image.width * image.height)};
         return image;
     }
 

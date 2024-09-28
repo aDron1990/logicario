@@ -9,10 +9,12 @@ namespace logicario::engine::platform
         initGlfw();
         createWindow(params);
         setCallbacks();
-        m_logger.info("Window initialized");
-		glfwMakeContextCurrent(m_windowHandle.get());
-		m_renderer = std::move(std::make_unique<OglRenderer>(std::bind(&GlfwWindow::swap, this), params.loggerSink));
-		m_input = std::move(std::make_unique<GlfwInput>(params.loggerSink));
+		m_logger.info("Window initialized");
+        glfwMakeContextCurrent(m_windowHandle.get());
+        m_renderer = std::move(std::make_unique<OglRenderer>(std::bind(&GlfwWindow::swap, this), params.loggerSink));
+        m_input = std::move(std::make_unique<GlfwInput>(params.loggerSink));
+        m_resizedActionSubForRenderer = Resized.add([&](int width, int height) { m_renderer->onWindowResize(width, height); });
+		m_renderer->onWindowResize(params.width, params.height);
     }
 
     void GlfwWindow::initGlfw()
@@ -35,16 +37,17 @@ namespace logicario::engine::platform
             throw std::runtime_error{"Failed to create window"};
         }
         m_windowHandle = WindowHandle{windowPtr, [](GLFWwindow* wnd)
-        {
-            glfwDestroyWindow(wnd);
-            glfwTerminate();
-        }};
+            {
+                glfwDestroyWindow(wnd);
+                glfwTerminate();
+            }};
     }
 
     void GlfwWindow::setCallbacks()
     {
         glfwSetWindowUserPointer(m_windowHandle.get(), this);
         glfwSetWindowCloseCallback(m_windowHandle.get(), windowCloseCallback);
+		glfwSetFramebufferSizeCallback(m_windowHandle.get(), framebufferSizeCallback);
         glfwSetKeyCallback(m_windowHandle.get(), windowKeyCallback);
     }
 
@@ -53,20 +56,20 @@ namespace logicario::engine::platform
         glfwPollEvents();
     }
 
-	void GlfwWindow::swap()
-	{
-		glfwSwapBuffers(m_windowHandle.get());
-	}
+    void GlfwWindow::swap()
+    {
+        glfwSwapBuffers(m_windowHandle.get());
+    }
 
     Input& GlfwWindow::getInput()
     {
         return *m_input;
     }
 
-	Renderer& GlfwWindow::getRenderer()
-	{
-		return *m_renderer;
-	}
+    Renderer& GlfwWindow::getRenderer()
+    {
+        return *m_renderer;
+    }
 
     void GlfwWindow::windowCloseCallback(GLFWwindow* window)
     {
@@ -80,4 +83,10 @@ namespace logicario::engine::platform
         GlfwWindow* wnd = (GlfwWindow*)glfwGetWindowUserPointer(window);
         wnd->m_input->setKey(key, action);
     }
+
+	void GlfwWindow::framebufferSizeCallback(GLFWwindow* window, int width, int height)
+	{
+		GlfwWindow* wnd = (GlfwWindow*)glfwGetWindowUserPointer(window);
+        wnd->Resized.notify(width, height);
+	}
 }

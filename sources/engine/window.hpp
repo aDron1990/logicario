@@ -15,6 +15,7 @@ namespace logicario::engine
 
     public:
         Action<> Closed;
+		Action<int, int> Resized;
 
     protected:
         ~Window() = default;
