@@ -40,14 +40,14 @@ int main()
 
 		logger.debug("shader id is {}", shader.getID());
 		logger.debug("texture id is {}", texture.getID());
-
-		texture.bind();
+		
+		logicario::engine::Sprite sprite{texture, {1, 15, 4, 12}};
 
         while (run)
         {
             window.update();
             renderer.clear({0.5, 0.6, 0.7, 1.0});
-			renderer.drawTestTriangle(shader);
+			renderer.draw(sprite, shader);
             renderer.swap();
         }
     }

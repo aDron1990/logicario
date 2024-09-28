@@ -15,6 +15,7 @@ namespace logicario::engine::platform
         OglTexture();
         OglTexture(const Image& image, const ID& resourceID);
         void bind() override;
+        glm::ivec2 getSize() override;
         bool operator==(const OglTexture& texture) const noexcept;
 
     public:
@@ -27,6 +28,6 @@ namespace logicario::engine::platform
         using GlTextureDeleter = void (*)(GLuint*);
         using GlTexture = std::unique_ptr<GLuint, GlTextureDeleter>;
         GlTexture m_texture;
-		Image m_image;
+        Image m_image;
     };
 }

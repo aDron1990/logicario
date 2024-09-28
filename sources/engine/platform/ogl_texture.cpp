@@ -11,8 +11,8 @@ namespace logicario::engine::platform
         GLuint texture;
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
-		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_image.width, m_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_image.data.data());
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_image.width, m_image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_image.data.data());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -28,13 +28,20 @@ namespace logicario::engine::platform
     OglTexture::OglTexture(OglTexture&& texture) noexcept : m_texture{std::move(texture.m_texture)}
     {
         setID(texture.getID());
+		m_image = texture.m_image;
     }
 
     OglTexture& OglTexture::operator=(OglTexture&& texture) noexcept
     {
         m_texture = std::move(texture.m_texture);
         setID(texture.getID());
+		m_image = texture.m_image;
         return *this;
+    }
+
+    glm::ivec2 OglTexture::getSize()
+    {
+        return {m_image.width, m_image.height};
     }
 
     bool OglTexture::operator==(const OglTexture& texture) const noexcept

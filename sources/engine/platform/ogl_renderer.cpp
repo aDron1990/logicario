@@ -1,8 +1,10 @@
 #include <engine/platform/Ogl_renderer.hpp>
 
+#include <glm/gtc/matrix_transform.hpp>
+
 namespace logicario::engine::platform
 {
-    OglRenderer::OglRenderer(std::function<void()> swapCallback, std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> loggerSink) : m_swapCallback{swapCallback}, m_logger{"renderer", {loggerSink}}
+    OglRenderer::OglRenderer(std::function<void()> swapCallback, std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> loggerSink) : m_swapCallback{swapCallback}, m_logger{"renderer", {loggerSink}}, m_framebufferSize{0, 0}, m_aspect{0}
     {
         glewExperimental = true;
         if (glewInit() != GLEW_OK)
@@ -17,6 +19,8 @@ namespace logicario::engine::platform
     void OglRenderer::onWindowResize(int width, int height)
     {
         m_logger.trace("Framebuffer resized: [{}, {}]", width, height);
+		m_framebufferSize = {width, height};
+		m_aspect = (float)height / width;
         glViewport(0, 0, width, height);
     }
 
@@ -45,7 +49,7 @@ namespace logicario::engine::platform
 		return m_textures[textureID];
 	}
 
-    void OglRenderer::drawTestTriangle(Shader& shader)
+    void OglRenderer::drawTest(Shader& shader)
     {
         float vertices[] = 
 		{
@@ -63,7 +67,7 @@ namespace logicario::engine::platform
 
 		glGenBuffers(1, &vbo);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
@@ -72,5 +76,60 @@ namespace logicario::engine::platform
 		shader.bind();
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDeleteBuffers(1, &vbo);
+		glDeleteVertexArrays(1, &vao);
     }
+
+	void OglRenderer::draw(Sprite& sprite, Shader& shader)
+	{
+		auto spriteRegion = sprite.getTextureRegion();
+		auto& spriteTexture = sprite.getTexture();
+		glm::fvec2 spriteSize = {spriteRegion.right - spriteRegion.left, spriteRegion.bottom - spriteRegion.top};
+		glm::fvec2 textureSize = spriteTexture.getSize();
+		float spriteAspect = spriteSize.x / spriteSize.y;
+		//glm::mat4 model = glm::scale(glm::mat4{1.0f}, glm::vec3{(float)1.0f / textureSize.x, (float)1.0f / textureSize.y, 1.0f});
+		glm::mat4 model = glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f * spriteAspect, 1.0f, 1.0f});
+		glm::mat4 projection = glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f * m_aspect, 1.0f, 1.0f});
+
+		GLuint vbo, vao, ebo;
+		float vertices[] = 
+		{
+			-0.5f, 0.5f, 	spriteRegion.left / textureSize.x, spriteRegion.top / textureSize.y,
+			0.5f, -0.5f, 	spriteRegion.right / textureSize.x, spriteRegion.bottom / textureSize.y,
+			0.5f, 0.5f, 	spriteRegion.right / textureSize.x, spriteRegion.top / textureSize.y,
+			-0.5f, -0.5f, 	spriteRegion.left / textureSize.x, spriteRegion.bottom / textureSize.y,
+		};
+
+		unsigned int indices[] =
+		{
+			0, 1, 2,
+			0, 3, 1
+		};
+
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+		glEnableVertexAttribArray(1);
+
+		glGenBuffers(1, &ebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STREAM_DRAW);
+
+		shader.bind();
+		shader.set(model, "model");
+		shader.set(projection, "projection");
+		spriteTexture.bind();
+		glBindVertexArray(vao);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glDeleteBuffers(1, &vbo);
+		glDeleteBuffers(1, &ebo);
+		glDeleteVertexArrays(1, &vao);
+	}
 }

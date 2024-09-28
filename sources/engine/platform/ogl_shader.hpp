@@ -3,6 +3,7 @@
 #include <engine/shader.hpp>
 
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
 #include <memory>
 #include <cstdint>
@@ -14,7 +15,8 @@ namespace logicario::engine::platform
     public:
         OglShader();
         OglShader(const Text& vertexCode, const Text& fragmentCode, const ID& resourceID);
-        void bind() override;
+        void bind() const override;
+		void set(const glm::mat4& matrix, const std::string& name) const;
         bool operator==(const OglShader& shader) const noexcept;
 
     public:

@@ -19,7 +19,8 @@ namespace logicario::engine::platform
         void onWindowResize(int width, int height);
         void swap() override;
         void clear(const glm::vec4& color) override;
-        void drawTestTriangle(Shader& shader) override;
+        void drawTest(Shader& shader) override;
+		void draw(Sprite& sprite, Shader& shader);
 
     public:
         Shader& createShader(const Text& vertexCode, const Text& fragmentCode) override;
@@ -30,5 +31,7 @@ namespace logicario::engine::platform
         std::function<void()> m_swapCallback;
         std::unordered_map<ID, OglShader> m_shaders;
         std::unordered_map<ID, OglTexture> m_textures;
+		glm::ivec2 m_framebufferSize;
+		float m_aspect;
     };
 }

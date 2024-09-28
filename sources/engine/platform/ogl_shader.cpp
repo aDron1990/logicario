@@ -1,5 +1,7 @@
 #include <engine/platform/ogl_shader.hpp>
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <stdexcept>
 #include <string_view>
 
@@ -57,10 +59,16 @@ namespace logicario::engine::platform
         m_program = GlProgram{new GLuint{program}, [](GLuint* id) { glDeleteProgram(*id); }};
     }
 
-    void OglShader::bind()
+    void OglShader::bind() const
     {
         glUseProgram(*m_program);
     }
+
+	void OglShader::set(const glm::mat4& matrix, const std::string& name) const
+	{
+		auto loc = glGetUniformLocation(*m_program, name.c_str());
+		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
 
     OglShader::OglShader(OglShader&& shader) noexcept : m_program{std::move(shader.m_program)}
     {
