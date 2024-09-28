@@ -13,7 +13,7 @@ namespace logicario::engine::platform
     {
     public:
         StdFilesystem(std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> loggerSink);
-        std::optional<std::string> loadText(const Path& path) override { return ""; };
+        std::optional<Text> loadText(const Path& path) override;
         std::optional<Image> loadImage(const Path& path) override;
 
     private:

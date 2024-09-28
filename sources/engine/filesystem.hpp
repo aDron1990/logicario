@@ -13,7 +13,7 @@ namespace logicario::engine
     {
     public:
         using Path = std::string;
-        virtual std::optional<std::string> loadText(const Path& path) = 0;
+        virtual std::optional<Text> loadText(const Path& path) = 0;
         virtual std::optional<Image> loadImage(const Path& path) = 0;
 
     protected:

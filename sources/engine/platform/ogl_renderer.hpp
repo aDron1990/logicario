@@ -1,11 +1,13 @@
 #include <engine/renderer.hpp>
 #include <engine/action.hpp>
+#include <engine/platform/ogl_shader.hpp>
 
 #include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <GL/glew.h>
 
 #include <functional>
+#include <unordered_map>
 
 namespace logicario::engine::platform
 {
@@ -18,8 +20,12 @@ namespace logicario::engine::platform
         void clear(const glm::vec4& color) override;
         void draw() override;
 
+    public:
+        Shader& createShader(const Text& vertexCode, const Text& fragmentCode) override;
+
     private:
         spdlog::logger m_logger;
         std::function<void()> m_swapCallback;
+        std::unordered_map<ID, OglShader> m_shaders;
     };
 }

@@ -17,6 +17,7 @@ int main()
     logger.info("{:-^80}", "Starting");
     try
     {
+        logicario::engine::platform::StdFilesystem filesystem{stdoutSink};
         logicario::engine::platform::GlfwWindow window{{"logicario", 800, 600, stdoutSink}};
         bool run = true;
         auto windowClosedActionSubscribe = window.Closed.add([&run]() { run = false; });
@@ -24,12 +25,16 @@ int main()
         auto& renderer = window.getRenderer();
         auto keyDownedActionSubscribe = input.KeyDowned.add(
             [&run](logicario::engine::KeyCode key)
-        {
-            if (key == logicario::engine::KeyCode::Esc) run = false;
-        });
+            {
+                if (key == logicario::engine::KeyCode::Esc) run = false;
+            });
 
-		logicario::engine::platform::StdFilesystem filesystem{stdoutSink};
-		auto image = filesystem.loadImage("resources/images/test.png");
+
+		auto vertex = filesystem.loadText("resources/shaders/main/vertex.glsl").value();
+		auto fragment = filesystem.loadText("resources/shaders/main/fragment.glsl").value();
+		auto& shader = renderer.createShader(vertex, fragment);
+
+		logger.info("shader id is {}", shader.getID());
 
         while (run)
         {

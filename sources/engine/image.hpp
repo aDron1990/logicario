@@ -1,13 +1,14 @@
 #pragma once
 
+#include <engine/types.hpp>
+
 #include <vector>
 
 namespace logicario::engine
 {
-    using Byte = unsigned char;
     struct Image
     {
-        std::vector<Byte> data;
+        Binary data;
         int width;
         int height;
         int channels;
