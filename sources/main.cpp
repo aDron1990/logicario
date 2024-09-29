@@ -42,11 +42,13 @@ int main()
 		auto image = filesystem.loadImage("resources/images/test.png").value();
 		auto& texture = renderer.createTexture(image);
 
-		auto& view = renderer.createView({5, 250, 5, 250});
+		auto& mainView = renderer.createView(0);
+		auto& cornerView = renderer.createView(1);
 
 		logger.debug("shader id is {}", shader.getID());
 		logger.debug("texture id is {}", texture.getID());
-		logger.debug("view id is {}", view.getID());
+		logger.debug("mainView id is {}", mainView.getID());
+		logger.debug("cornerView id is {}", cornerView.getID());
 		
 		logicario::engine::Sprite sprite{texture, {1, 15, 4, 12}};
 
@@ -54,8 +56,10 @@ int main()
         {
             window.update();
             renderer.clear({0.2, 0.2, 0.2, 1.0});
-			renderer.drawBackground(view, backgroundShader, glm::vec4{0.8f});
-			renderer.draw(view, sprite, shader);
+			renderer.drawBackground(mainView, backgroundShader, glm::vec4{0.6f});
+			
+			renderer.drawBackground(cornerView, backgroundShader, glm::vec4{1.0f});
+			renderer.draw(mainView, sprite, shader);
             renderer.swap();
         }
     }

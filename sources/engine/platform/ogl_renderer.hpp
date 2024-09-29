@@ -27,7 +27,7 @@ namespace logicario::engine::platform
     public:
         Shader& createShader(const Text& vertexCode, const Text& fragmentCode) override;
         Texture& createTexture(const Image& image) override;
-		View& createView(ViewImpl::Rect viewRect) override;
+		View& createView(int type) override;
 
     private:
         spdlog::logger m_logger;

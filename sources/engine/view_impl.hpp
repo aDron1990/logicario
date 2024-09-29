@@ -1,17 +1,13 @@
 #pragma once
 
+#include <engine/types.hpp>
+
 #include <glm/glm.hpp>
 
 namespace logicario::engine
 {
     class ViewImpl
     {
-    public:
-        struct Rect
-        {
-            int left, right, top, bottom;
-        };
-
     public:
 		virtual ~ViewImpl() = default;
         virtual void bind() = 0;

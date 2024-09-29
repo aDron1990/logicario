@@ -6,8 +6,13 @@
 
 namespace logicario::engine
 {
-	using Byte = unsigned char;
-	using Binary = std::span<Byte>;
-	using Text = std::vector<char>;
-	using ID = std::string;
+    using Byte = unsigned char;
+    using Binary = std::span<Byte>;
+    using Text = std::vector<char>;
+    using ID = std::string;
+
+    struct Rect
+    {
+        int left, right, top, bottom;
+    };
 }

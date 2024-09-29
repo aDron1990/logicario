@@ -2,6 +2,7 @@
 
 #include <engine/view_impl.hpp>
 #include <engine/action.hpp>
+#include <engine/types.hpp>
 
 namespace logicario::engine::platform
 {
@@ -18,7 +19,7 @@ namespace logicario::engine::platform
         void onRendererResize(int width, int height) override;
 
     private:
-        ViewImpl::Rect m_viewRect;
+        Rect m_viewRect;
         glm::vec2 m_rendererSize;
     };
 }

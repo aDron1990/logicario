@@ -1,6 +1,8 @@
 #pragma once
 
 #include <engine/action.hpp>
+#include <engine/types.hpp>
+#include <engine/types.hpp>
 #include <engine/image.hpp>
 #include <engine/sprite.hpp>
 #include <engine/shader.hpp>
@@ -24,7 +26,7 @@ namespace logicario::engine
     public:
         virtual Shader& createShader(const Text& vertexCode, const Text& fragmentCode) = 0;
         virtual Texture& createTexture(const Image& image) = 0;
-		virtual View& createView(ViewImpl::Rect viewRect) = 0;
+		virtual View& createView(int type) = 0;
 
     protected:
         ~Renderer() = default;

@@ -1,4 +1,6 @@
 #include <engine/platform/Ogl_renderer.hpp>
+#include <engine/ui/framebuffer_filler.hpp>
+#include <engine/ui/corner_stick.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -53,12 +55,18 @@ namespace logicario::engine::platform
 		return m_textures[textureID];
 	}
 
-	View& OglRenderer::createView(ViewImpl::Rect viewRect)
+	View& OglRenderer::createView(int type)
 	{
+		View::ViewControllerPtr viewController;
+		if (type == 0)
+			viewController = std::make_unique<ui::FramebufferFiller>(5);
+		else
+			viewController = std::make_unique<ui::CornerStick>(5, 100, 100);
+
 		ID viewID = xg::newGuid().str();
 		View::ViewImplPtr viewImpl = std::make_unique<OglViewImpl>(m_framebufferSize);
-		viewImpl->setRect(viewRect);
-		m_views.emplace(viewID, View{std::move(viewImpl), viewID});
+		m_views.emplace(viewID, View{std::move(viewImpl), std::move(viewController), viewID});
+		m_views[viewID].onRendererResize(m_framebufferSize.x, m_framebufferSize.y);
 		return m_views[viewID];
 	}
 
@@ -135,6 +143,7 @@ namespace logicario::engine::platform
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STREAM_DRAW);
 
+		view.bind();
 		shader.bind();
 		shader.set(model, "model");
 		shader.set(projection, "projection");
@@ -172,23 +181,8 @@ namespace logicario::engine::platform
 
 		view.bind();
 
-		//glm::vec4 viewport = {borderThick, borderThick, m_framebufferSize.x - borderThick, m_framebufferSize.y - borderThick};
-		//glViewport(viewport.x, m_framebufferSize.y - viewport.w, viewport.z - viewport.x, (m_framebufferSize.y - viewport.y) - (m_framebufferSize.y - viewport.w));
-		//glm::vec2 viewportSize = {viewport.z - viewport.x, viewport.w - viewport.y};
-
-		//glm::vec2 newSize = {100, 100};
-		//glm::vec2 pixelPos = {50, 50};
-		//glm::vec2 a = {newSize.x / viewportSize.x, newSize.y / viewportSize.y};
-		//pixelPos -= viewportSize / 2.0f;
-		//pixelPos /= viewportSize / 2.0f;
-		//pixelPos.y = -pixelPos.y;
-		//glm::vec2 newPos = pixelPos;
-		//glm::mat4 matrix{1.0f};
-		//matrix = glm::translate(glm::mat4{1.0f}, {newPos, 0.0f});
-		//matrix = glm::scale(matrix, glm::vec3{a, 1.0f});
-
 		shader.bind();
-		shader.set(glm::vec4{0.8f}, "color");
+		shader.set(color, "color");
 		glBindVertexArray(vao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		glDeleteBuffers(1, &vbo);
