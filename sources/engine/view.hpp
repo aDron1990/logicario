@@ -13,12 +13,16 @@ namespace logicario::engine
     {
     public:
         using ViewImplPtr = std::unique_ptr<ViewImpl>;
-		using ViewControllerPtr = std::unique_ptr<ui::ViewController>;
+        using ViewControllerPtr = std::unique_ptr<ui::ViewController>;
         View();
         View(ViewImplPtr viewImpl, ViewControllerPtr viewController, const ID& resourceID);
         void onRendererResize(int width, int height);
         void bind();
-		glm::vec2 getSize();
+        glm::vec2 getSize();
+
+    public:
+        glm::mat4 getViewMatrix();
+        void setZoom(float zoom);
 
     public:
         bool operator==(const View& view) const noexcept;
@@ -29,6 +33,7 @@ namespace logicario::engine
 
     private:
         ViewImplPtr m_viewImpl;
-		ViewControllerPtr m_viewController;
+        ViewControllerPtr m_viewController;
+        float m_zoom{1.0f};
     };
 }

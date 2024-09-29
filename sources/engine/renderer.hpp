@@ -25,7 +25,7 @@ namespace logicario::engine
     public:
         virtual Shader& createShader(const Text& vertexCode, const Text& fragmentCode) = 0;
         virtual Texture& createTexture(const Image& image) = 0;
-		virtual View& createView(int type) = 0;
+		virtual View& createView(View::ViewControllerPtr viewController) = 0;
 
     protected:
         ~Renderer() = default;

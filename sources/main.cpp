@@ -2,6 +2,9 @@
 
 #include <engine/platform/glfw_window.hpp>
 #include <engine/platform/std_filesystem.hpp>
+#include <engine/ui/main_view.hpp>
+#include <engine/ui/corner_view.hpp>
+#include <engine/ui/bordered_view.hpp>
 
 #include <GLFW/glfw3.h>
 #include <crossguid/guid.hpp>
@@ -14,7 +17,7 @@ int main()
 {
     auto stdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     spdlog::logger logger{"main", {stdoutSink}};
-	logger.set_level((spdlog::level::level_enum)SPDLOG_ACTIVE_LEVEL);
+    logger.set_level((spdlog::level::level_enum)SPDLOG_ACTIVE_LEVEL);
     logger.info("{:-^80}", "Starting");
     try
     {
@@ -30,40 +33,35 @@ int main()
                 if (key == logicario::engine::KeyCode::Esc) run = false;
             });
 
+        auto vertex = filesystem.loadText("resources/shaders/main/vertex.glsl").value();
+        auto fragment = filesystem.loadText("resources/shaders/main/fragment.glsl").value();
+        auto& shader = renderer.createShader(vertex, fragment);
 
-		auto vertex = filesystem.loadText("resources/shaders/main/vertex.glsl").value();
-		auto fragment = filesystem.loadText("resources/shaders/main/fragment.glsl").value();
-		auto& shader = renderer.createShader(vertex, fragment);
+        auto b_vertex = filesystem.loadText("resources/shaders/background/vertex.glsl").value();
+        auto b_fragment = filesystem.loadText("resources/shaders/background/fragment.glsl").value();
+        auto& backgroundShader = renderer.createShader(b_vertex, b_fragment);
 
-		auto b_vertex = filesystem.loadText("resources/shaders/background/vertex.glsl").value();
-		auto b_fragment = filesystem.loadText("resources/shaders/background/fragment.glsl").value();
-		auto& backgroundShader = renderer.createShader(b_vertex, b_fragment);
+        auto atlasImage = filesystem.loadImage("resources/images/atlas.png").value();
+        auto& atlasTexture = renderer.createTexture(atlasImage);
+        logicario::engine::Sprite emptySprite{atlasTexture, {0, 32, 0, 32}};
 
-		auto testImage = filesystem.loadImage("resources/images/test.png").value();
-		auto& testTexture = renderer.createTexture(testImage);
-		logicario::engine::Sprite sprite{testTexture, {1, 15, 4, 12}};
+        auto mainViewController = std::make_unique<logicario::engine::ui::MainView>(std::make_unique<logicario::engine::ui::BorderedView>(5));
+        auto cornerViewController =
+            std::make_unique<logicario::engine::ui::CornerView>(logicario::engine::ui::CornerView::Corner::RightBottom, 100, 100, std::make_unique<logicario::engine::ui::BorderedView>(5));
+        auto& mainView = renderer.createView(std::move(mainViewController));
+        auto& cornerView = renderer.createView(std::move(cornerViewController));
 
-		auto atlasImage = filesystem.loadImage("resources/images/atlas.png").value();
-		auto& atlasTexture = renderer.createTexture(atlasImage);
-		logicario::engine::Sprite emptySprite{atlasTexture, {0, 32, 0, 32}};
-
-		auto& mainView = renderer.createView(0);
-		auto& cornerView = renderer.createView(1);
-
-		logger.debug("shader id is {}", shader.getID());
-		logger.debug("texture id is {}", testTexture.getID());
-		logger.debug("mainView id is {}", mainView.getID());
-		logger.debug("cornerView id is {}", cornerView.getID());
-		
+		mainView.setZoom(2);
+		cornerView.setZoom(5);
 
         while (run)
         {
             window.update();
             renderer.clear({0.2, 0.2, 0.2, 1.0});
-			renderer.drawBackground(mainView, backgroundShader, glm::vec4{0.6f});
-			
-			//renderer.drawBackground(cornerView, backgroundShader, glm::vec4{1.0f});
-			renderer.draw(cornerView, emptySprite, shader);
+            renderer.drawBackground(mainView, backgroundShader, glm::vec4{0.6f});
+            renderer.drawBackground(cornerView, backgroundShader, glm::vec4{0.4f});
+            renderer.draw(mainView, emptySprite, shader);
+            renderer.draw(cornerView, emptySprite, shader);
             renderer.swap();
         }
     }

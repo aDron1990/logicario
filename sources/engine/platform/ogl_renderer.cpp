@@ -1,7 +1,4 @@
 #include <engine/platform/Ogl_renderer.hpp>
-#include <engine/ui/main_view.hpp>
-#include <engine/ui/corner_view.hpp>
-#include <engine/ui/bordered_view.hpp>
 
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -56,14 +53,8 @@ namespace logicario::engine::platform
 		return m_textures[textureID];
 	}
 
-	View& OglRenderer::createView(int type)
+	View& OglRenderer::createView(View::ViewControllerPtr viewController)
 	{
-		View::ViewControllerPtr viewController;
-		if (type == 0)
-			viewController = std::make_unique<ui::MainView>(std::make_unique<ui::BorderedView>(5));
-		else
-			viewController = std::make_unique<ui::CornerView>(ui::CornerView::Corner::LeftTop,100, 100, std::make_unique<ui::BorderedView>(5));
-
 		ID viewID = xg::newGuid().str();
 		View::ViewImplPtr viewImpl = std::make_unique<OglViewImpl>(m_framebufferSize);
 		m_views.emplace(viewID, View{std::move(viewImpl), std::move(viewController), viewID});
@@ -78,19 +69,20 @@ namespace logicario::engine::platform
 		glm::fvec2 spriteSize = {spriteRegion.right - spriteRegion.left, spriteRegion.bottom - spriteRegion.top};
 		glm::fvec2 textureSize = spriteTexture.getSize();
 		float spriteAspect = spriteSize.x / spriteSize.y;
-		float aspect = view.getSize().y / view.getSize().x;
+
 		glm::mat4 model = glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f * spriteAspect, 1.0f, 1.0f});
-		glm::mat4 projection = glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f * aspect, 1.0f, 1.0f});
+		glm::mat4 viewMatrix = view.getViewMatrix();
+		glm::mat4 projection = glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f, 1.0f, 1.0f});
 
 		GLuint vbo, vao, ebo;
+
 		float vertices[] = 
 		{
-			-1.0f, 1.0f, 	spriteRegion.left / textureSize.x, spriteRegion.top / textureSize.y,
-			1.0f, -1.0f, 	spriteRegion.right / textureSize.x, spriteRegion.bottom / textureSize.y,
-			1.0f, 1.0f, 	spriteRegion.right / textureSize.x, spriteRegion.top / textureSize.y,
-			-1.0f, -1.0f, 	spriteRegion.left / textureSize.x, spriteRegion.bottom / textureSize.y,
+			-(spriteSize.x / 2.0f), (spriteSize.y / 2.0f), 		spriteRegion.left / textureSize.x, spriteRegion.top / textureSize.y,
+			(spriteSize.x / 2.0f), -(spriteSize.y / 2.0f), 		spriteRegion.right / textureSize.x, spriteRegion.bottom / textureSize.y,
+			(spriteSize.x / 2.0f), (spriteSize.y / 2.0f), 		spriteRegion.right / textureSize.x, spriteRegion.top / textureSize.y,
+			-(spriteSize.x / 2.0f), -(spriteSize.y / 2.0f), 	spriteRegion.left / textureSize.x, spriteRegion.bottom / textureSize.y,
 		};
-
 		unsigned int indices[] =
 		{
 			0, 1, 2,
@@ -115,6 +107,7 @@ namespace logicario::engine::platform
 		view.bind();
 		shader.bind();
 		shader.set(model, "model");
+		shader.set(viewMatrix, "view");
 		shader.set(projection, "projection");
 		spriteTexture.bind();
 		glBindVertexArray(vao);
