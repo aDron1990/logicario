@@ -68,9 +68,8 @@ namespace logicario::engine::platform
 		auto& spriteTexture = sprite.getTexture();
 		glm::fvec2 spriteSize = {spriteRegion.right - spriteRegion.left, spriteRegion.bottom - spriteRegion.top};
 		glm::fvec2 textureSize = spriteTexture.getSize();
-		float spriteAspect = spriteSize.x / spriteSize.y;
 
-		glm::mat4 model = glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f * spriteAspect, 1.0f, 1.0f});
+		glm::mat4 model = sprite.getMatrix();
 		glm::mat4 viewMatrix = view.getViewMatrix();
 		glm::mat4 projection = glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f, 1.0f, 1.0f});
 

@@ -10,6 +10,7 @@
 #include <crossguid/guid.hpp>
 #include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <memory>
 
@@ -24,10 +25,11 @@ int main()
         logicario::engine::platform::StdFilesystem filesystem{stdoutSink};
         logicario::engine::platform::GlfwWindow window{{"logicario", 800, 600, stdoutSink}};
         bool run = true;
-        auto windowClosedActionSubscribe = window.Closed.add([&run]() { run = false; });
+        auto windowClosedActionSub = window.Closed.add([&run]() { run = false; });
         auto& input = window.getInput();
         auto& renderer = window.getRenderer();
-        auto keyDownedActionSubscribe = input.KeyDowned.add(
+
+        auto keyDownedActionSub = input.KeyDowned.add(
             [&run](logicario::engine::KeyCode key)
             {
                 if (key == logicario::engine::KeyCode::Esc) run = false;
@@ -52,7 +54,7 @@ int main()
         auto& cornerView = renderer.createView(std::move(cornerViewController));
 
 		mainView.setZoom(2);
-		cornerView.setZoom(5);
+		//emptySprite.setScale({6.0f, 6.0f});
 
         while (run)
         {
@@ -60,7 +62,11 @@ int main()
             renderer.clear({0.2, 0.2, 0.2, 1.0});
             renderer.drawBackground(mainView, backgroundShader, glm::vec4{0.6f});
             renderer.drawBackground(cornerView, backgroundShader, glm::vec4{0.4f});
+			emptySprite.setPosition({0, 0});
             renderer.draw(mainView, emptySprite, shader);
+			emptySprite.setPosition({32, 32});
+            renderer.draw(mainView, emptySprite, shader);
+			emptySprite.setPosition({0, 0});
             renderer.draw(cornerView, emptySprite, shader);
             renderer.swap();
         }

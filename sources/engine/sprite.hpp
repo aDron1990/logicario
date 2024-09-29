@@ -1,10 +1,11 @@
 #pragma once
 
 #include <engine/texture.hpp>
+#include <engine/transform.hpp>
 
 namespace logicario::engine
 {
-    class Sprite
+    class Sprite : public Transform
     {
     public:
         Sprite(Texture& texture);

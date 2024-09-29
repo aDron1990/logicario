@@ -42,6 +42,7 @@ namespace logicario::engine::platform
         static void windowCloseCallback(GLFWwindow* window);
         static void windowKeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods);
         static void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+		static void cursorPosCallback(GLFWwindow* window, double mouseX, double mouseY);
 
     private:
         WindowHandle m_windowHandle;

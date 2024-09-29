@@ -10,6 +10,7 @@ namespace logicario::engine
     public:
         Action<KeyCode> KeyDowned;
         Action<KeyCode> KeyUpped;
+		Action<int, int> MouseMoved;
 
     protected:
         ~Input() = default;

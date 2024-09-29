@@ -15,6 +15,7 @@ namespace logicario::engine::platform
     public:
         GlfwInput(std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> loggerSink);
         void setKey(uint32_t glfwKeyCode, bool state);
+		void setMousePos(int mouseX, int mouseY);
 
     private:
         KeyCode translateKey(uint32_t glfwKeyCode);

@@ -17,6 +17,11 @@ namespace logicario::engine::platform
         notifyKeyCode(keyCode, state);
     }
 
+	void GlfwInput::setMousePos(int mouseX, int mouseY)
+	{
+		MouseMoved.notify(mouseX, mouseY);
+	}
+
     void GlfwInput::notifyKeyCode(KeyCode keyCode, bool state)
     {
         if (keyCode == KeyCode::None)

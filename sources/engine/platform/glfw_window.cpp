@@ -49,6 +49,7 @@ namespace logicario::engine::platform
         glfwSetWindowCloseCallback(m_windowHandle.get(), windowCloseCallback);
 		glfwSetFramebufferSizeCallback(m_windowHandle.get(), framebufferSizeCallback);
         glfwSetKeyCallback(m_windowHandle.get(), windowKeyCallback);
+		glfwSetCursorPosCallback(m_windowHandle.get(), cursorPosCallback);
     }
 
     void GlfwWindow::update()
@@ -88,5 +89,11 @@ namespace logicario::engine::platform
 	{
 		GlfwWindow* wnd = (GlfwWindow*)glfwGetWindowUserPointer(window);
         wnd->Resized.notify(width, height);
+	}
+
+	void GlfwWindow::cursorPosCallback(GLFWwindow* window, double mouseX, double mouseY)
+	{
+		GlfwWindow* wnd = (GlfwWindow*)glfwGetWindowUserPointer(window);
+		wnd->m_input->setMousePos((int)mouseX, (int)mouseY);
 	}
 }
