@@ -16,6 +16,7 @@ namespace logicario::engine
         View(ViewImplPtr viewImpl, const ID& resourceID);
         void onRendererResize(int width, int height);
         void bind();
+		glm::vec2 getSize();
 
     public:
         bool operator==(const View& view) const noexcept;

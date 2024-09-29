@@ -15,6 +15,11 @@ namespace logicario::engine
         m_viewImpl->bind();
     }
 
+	glm::vec2 View::getSize()
+	{
+		return m_viewImpl->getSize();
+	}
+
     View::View(View&& view) noexcept : m_viewImpl{std::move(view.m_viewImpl)}
     {
         setID(view.getID());

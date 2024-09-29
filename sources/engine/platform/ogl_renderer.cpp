@@ -93,7 +93,7 @@ namespace logicario::engine::platform
 		glDeleteVertexArrays(1, &vao);
     }
 
-	void OglRenderer::draw(Sprite& sprite, Shader& shader)
+	void OglRenderer::draw(View& view, Sprite& sprite, Shader& shader)
 	{
 		auto spriteRegion = sprite.getTextureRegion();
 		auto& spriteTexture = sprite.getTexture();
@@ -101,8 +101,9 @@ namespace logicario::engine::platform
 		glm::fvec2 textureSize = spriteTexture.getSize();
 		float spriteAspect = spriteSize.x / spriteSize.y;
 		//glm::mat4 model = glm::scale(glm::mat4{1.0f}, glm::vec3{(float)1.0f / textureSize.x, (float)1.0f / textureSize.y, 1.0f});
+		float aspect = view.getSize().y / view.getSize().x;
 		glm::mat4 model = glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f * spriteAspect, 1.0f, 1.0f});
-		glm::mat4 projection = glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f * m_aspect, 1.0f, 1.0f});
+		glm::mat4 projection = glm::scale(glm::mat4{1.0f}, glm::vec3{1.0f * aspect, 1.0f, 1.0f});
 
 		GLuint vbo, vao, ebo;
 		float vertices[] = 
@@ -170,6 +171,21 @@ namespace logicario::engine::platform
 		glEnableVertexAttribArray(0);
 
 		view.bind();
+
+		//glm::vec4 viewport = {borderThick, borderThick, m_framebufferSize.x - borderThick, m_framebufferSize.y - borderThick};
+		//glViewport(viewport.x, m_framebufferSize.y - viewport.w, viewport.z - viewport.x, (m_framebufferSize.y - viewport.y) - (m_framebufferSize.y - viewport.w));
+		//glm::vec2 viewportSize = {viewport.z - viewport.x, viewport.w - viewport.y};
+
+		//glm::vec2 newSize = {100, 100};
+		//glm::vec2 pixelPos = {50, 50};
+		//glm::vec2 a = {newSize.x / viewportSize.x, newSize.y / viewportSize.y};
+		//pixelPos -= viewportSize / 2.0f;
+		//pixelPos /= viewportSize / 2.0f;
+		//pixelPos.y = -pixelPos.y;
+		//glm::vec2 newPos = pixelPos;
+		//glm::mat4 matrix{1.0f};
+		//matrix = glm::translate(glm::mat4{1.0f}, {newPos, 0.0f});
+		//matrix = glm::scale(matrix, glm::vec3{a, 1.0f});
 
 		shader.bind();
 		shader.set(glm::vec4{0.8f}, "color");

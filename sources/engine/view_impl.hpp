@@ -16,6 +16,7 @@ namespace logicario::engine
 		virtual ~ViewImpl() = default;
         virtual void bind() = 0;
         virtual void setRect(Rect viewRect) = 0;
+		virtual glm::vec2 getSize() = 0;
 		virtual void onRendererResize(int width, int height) = 0;
 
     };

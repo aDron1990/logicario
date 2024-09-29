@@ -22,7 +22,7 @@ namespace logicario::engine::platform
         void clear(const glm::vec4& color) override;
         void drawTest(Shader& shader) override;
 		void drawBackground(View& view, Shader& shader, glm::vec4 color) override;
-		void draw(Sprite& sprite, Shader& shader) override;
+		void draw(View& view, Sprite& sprite, Shader& shader) override;
 
     public:
         Shader& createShader(const Text& vertexCode, const Text& fragmentCode) override;

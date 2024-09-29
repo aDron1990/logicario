@@ -8,18 +8,19 @@ namespace logicario::engine::platform
 
     void OglViewImpl::bind()
     {
-        Rect viewport{};
-        viewport.left = m_viewRect.left;
-        viewport.bottom = m_rendererSize.y - m_viewRect.bottom;
-        viewport.right = m_viewRect.right - viewport.left;
-        viewport.top = (m_rendererSize.y - m_viewRect.top) - m_viewRect.bottom;
-        glViewport(viewport.left, viewport.bottom, viewport.right, viewport.top);
+        glm::vec4 viewport = {m_viewRect.left, m_viewRect.top, m_viewRect.right, m_viewRect.bottom};
+		glViewport(viewport.x, m_rendererSize.y - viewport.w, viewport.z - viewport.x, (m_rendererSize.y - viewport.y) - (m_rendererSize.y - viewport.w));
     }
 
     void OglViewImpl::setRect(Rect viewRect)
     {
         m_viewRect = viewRect;
     }
+
+	glm::vec2 OglViewImpl::getSize()
+	{
+		return {m_viewRect.right - m_viewRect.left, m_viewRect.bottom - m_viewRect.top};
+	}
 
     void OglViewImpl::onRendererResize(int width, int height)
     {
