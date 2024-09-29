@@ -70,6 +70,12 @@ namespace logicario::engine::platform
 		glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
 
+	void OglShader::set(const glm::vec4& vector, const std::string& name) const 
+	{
+		auto loc = glGetUniformLocation(*m_program, name.c_str());
+		glUniform4fv(loc, 1, glm::value_ptr(vector));
+	}
+
     OglShader::OglShader(OglShader&& shader) noexcept : m_program{std::move(shader.m_program)}
     {
         setID(shader.getID());

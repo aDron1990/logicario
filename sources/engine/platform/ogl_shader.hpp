@@ -16,10 +16,11 @@ namespace logicario::engine::platform
         OglShader();
         OglShader(const Text& vertexCode, const Text& fragmentCode, const ID& resourceID);
         void bind() const override;
-		void set(const glm::mat4& matrix, const std::string& name) const;
-        bool operator==(const OglShader& shader) const noexcept;
+		void set(const glm::mat4& matrix, const std::string& name) const override;
+		void set(const glm::vec4& vector, const std::string& name) const override;
 
     public:
+		bool operator==(const OglShader& shader) const noexcept;
         OglShader(OglShader&& shader) noexcept;
         OglShader& operator=(OglShader&& shader) noexcept;
         OglShader(const OglShader&) = delete;

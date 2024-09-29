@@ -12,6 +12,7 @@ namespace logicario::engine
     public:
         virtual void bind() const = 0;
         virtual void set(const glm::mat4& matrix, const std::string& name) const = 0;
+		virtual void set(const glm::vec4& vector, const std::string& name) const = 0;
 
     protected:
         ~Shader() = default;

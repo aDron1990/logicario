@@ -22,6 +22,10 @@ namespace logicario::engine::platform
 		m_framebufferSize = {width, height};
 		m_aspect = (float)height / width;
         glViewport(0, 0, width, height);
+		for (auto&& view : m_views)
+		{
+			view.second.onRendererResize(width, height);
+		}
     }
 
     void OglRenderer::swap()
@@ -47,6 +51,15 @@ namespace logicario::engine::platform
 		ID textureID = xg::newGuid().str();
 		m_textures.emplace(textureID, OglTexture{image, textureID});
 		return m_textures[textureID];
+	}
+
+	View& OglRenderer::createView(ViewImpl::Rect viewRect)
+	{
+		ID viewID = xg::newGuid().str();
+		View::ViewImplPtr viewImpl = std::make_unique<OglViewImpl>(m_framebufferSize);
+		viewImpl->setRect(viewRect);
+		m_views.emplace(viewID, View{std::move(viewImpl), viewID});
+		return m_views[viewID];
 	}
 
     void OglRenderer::drawTest(Shader& shader)
@@ -130,6 +143,39 @@ namespace logicario::engine::platform
 
 		glDeleteBuffers(1, &vbo);
 		glDeleteBuffers(1, &ebo);
+		glDeleteVertexArrays(1, &vao);
+	}
+
+	void OglRenderer::drawBackground(View& view, Shader& shader, glm::vec4 color)
+	{
+		float vertices[] = 
+		{
+			-1.0f, 1.0f,
+			1.0f, -1.0f,
+			1.0f, 1.0f,
+			-1.0f, 1.0f,
+			-1.0f, -1.0f,
+			1.0f, -1.0f,
+		};
+		GLuint vbo, vao;
+
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
+
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+
+		view.bind();
+
+		shader.bind();
+		shader.set(glm::vec4{0.8f}, "color");
+		glBindVertexArray(vao);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDeleteBuffers(1, &vbo);
 		glDeleteVertexArrays(1, &vao);
 	}
 }
