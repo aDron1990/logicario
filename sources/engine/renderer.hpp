@@ -19,7 +19,6 @@ namespace logicario::engine
     public:
         virtual void swap() = 0;
         virtual void clear(const glm::vec4& color) = 0;
-        virtual void drawTest(Shader& shader) = 0;
 		virtual void draw(View& view, Sprite& sprite, Shader& shader) = 0;
 		virtual void drawBackground(View& view, Shader& shader, glm::vec4 color) = 0;
 

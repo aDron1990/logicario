@@ -20,7 +20,6 @@ namespace logicario::engine::platform
         void onWindowResize(int width, int height);
         void swap() override;
         void clear(const glm::vec4& color) override;
-        void drawTest(Shader& shader) override;
 		void drawBackground(View& view, Shader& shader, glm::vec4 color) override;
 		void draw(View& view, Sprite& sprite, Shader& shader) override;
 

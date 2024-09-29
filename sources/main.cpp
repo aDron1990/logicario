@@ -39,18 +39,22 @@ int main()
 		auto b_fragment = filesystem.loadText("resources/shaders/background/fragment.glsl").value();
 		auto& backgroundShader = renderer.createShader(b_vertex, b_fragment);
 
-		auto image = filesystem.loadImage("resources/images/test.png").value();
-		auto& texture = renderer.createTexture(image);
+		auto testImage = filesystem.loadImage("resources/images/test.png").value();
+		auto& testTexture = renderer.createTexture(testImage);
+		logicario::engine::Sprite sprite{testTexture, {1, 15, 4, 12}};
+
+		auto atlasImage = filesystem.loadImage("resources/images/atlas.png").value();
+		auto& atlasTexture = renderer.createTexture(atlasImage);
+		logicario::engine::Sprite emptySprite{atlasTexture, {0, 32, 0, 32}};
 
 		auto& mainView = renderer.createView(0);
 		auto& cornerView = renderer.createView(1);
 
 		logger.debug("shader id is {}", shader.getID());
-		logger.debug("texture id is {}", texture.getID());
+		logger.debug("texture id is {}", testTexture.getID());
 		logger.debug("mainView id is {}", mainView.getID());
 		logger.debug("cornerView id is {}", cornerView.getID());
 		
-		logicario::engine::Sprite sprite{texture, {1, 15, 4, 12}};
 
         while (run)
         {
@@ -58,8 +62,8 @@ int main()
             renderer.clear({0.2, 0.2, 0.2, 1.0});
 			renderer.drawBackground(mainView, backgroundShader, glm::vec4{0.6f});
 			
-			renderer.drawBackground(cornerView, backgroundShader, glm::vec4{1.0f});
-			renderer.draw(mainView, sprite, shader);
+			//renderer.drawBackground(cornerView, backgroundShader, glm::vec4{1.0f});
+			renderer.draw(cornerView, emptySprite, shader);
             renderer.swap();
         }
     }
