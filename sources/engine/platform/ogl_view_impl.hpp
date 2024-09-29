@@ -15,6 +15,7 @@ namespace logicario::engine::platform
     public:
         void bind() override;
         void setRect(Rect viewRect) override;
+		Rect getRect() override;
 		glm::vec2 getSize() override;
         void onRendererResize(int width, int height) override;
 

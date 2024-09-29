@@ -17,6 +17,11 @@ namespace logicario::engine::platform
         m_viewRect = viewRect;
     }
 
+	Rect OglViewImpl::getRect()
+	{
+		return m_viewRect;
+	}
+
 	glm::vec2 OglViewImpl::getSize()
 	{
 		return {m_viewRect.right - m_viewRect.left, m_viewRect.bottom - m_viewRect.top};

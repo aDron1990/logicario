@@ -47,27 +47,36 @@ int main()
         auto& atlasTexture = renderer.createTexture(atlasImage);
         logicario::engine::Sprite emptySprite{atlasTexture, {0, 32, 0, 32}};
 
-        auto mainViewController = std::make_unique<logicario::engine::ui::MainView>(std::make_unique<logicario::engine::ui::BorderedView>(5));
-        auto cornerViewController =
-            std::make_unique<logicario::engine::ui::CornerView>(logicario::engine::ui::CornerView::Corner::RightBottom, 100, 100, std::make_unique<logicario::engine::ui::BorderedView>(5));
+        auto mainViewController = std::make_unique<logicario::engine::ui::MainView>(std::make_unique<logicario::engine::ui::BorderedView>(50));
         auto& mainView = renderer.createView(std::move(mainViewController));
-        auto& cornerView = renderer.createView(std::move(cornerViewController));
 
-		mainView.setZoom(2);
-		//emptySprite.setScale({6.0f, 6.0f});
+        auto ac = input.MouseMoved.add(
+            [&](int x, int y)
+            {
+                if (mainView.isMouseHover(x, y))
+                {
+                    auto viewPos = mainView.screenToViewCoords({x, y});
+                    logger.debug("view:  [{}, {}]", viewPos.x, viewPos.y);
+                    return;
+                }
+                logger.debug("mouse: [{}, {}]", x, y);
+            });
+
+        mainView.setZoom(6);
+        std::vector<logicario::engine::Sprite> sprites;
+        sprites.push_back(emptySprite);
+        emptySprite.setPosition({32, 0});
+        //sprites.push_back(emptySprite);
 
         while (run)
         {
             window.update();
             renderer.clear({0.2, 0.2, 0.2, 1.0});
-            renderer.drawBackground(mainView, backgroundShader, glm::vec4{0.6f});
-            renderer.drawBackground(cornerView, backgroundShader, glm::vec4{0.4f});
-			emptySprite.setPosition({0, 0});
-            renderer.draw(mainView, emptySprite, shader);
-			emptySprite.setPosition({32, 32});
-            renderer.draw(mainView, emptySprite, shader);
-			emptySprite.setPosition({0, 0});
-            renderer.draw(cornerView, emptySprite, shader);
+            renderer.drawBackground(mainView, backgroundShader, {0.8f, 0.8f, 0.8f, 1.0f});
+            for (auto&& sprite : sprites)
+            {
+                renderer.draw(mainView, sprite, shader);
+            }
             renderer.swap();
         }
     }

@@ -7,12 +7,14 @@ namespace logicario::engine::platform
     OglRenderer::OglRenderer(std::function<void()> swapCallback, std::shared_ptr<spdlog::sinks::stdout_color_sink_mt> loggerSink) : m_swapCallback{swapCallback}, m_logger{"renderer", {loggerSink}}, m_framebufferSize{0, 0}, m_aspect{0}
     {
         glewExperimental = true;
+		m_logger.set_level((spdlog::level::level_enum)SPDLOG_ACTIVE_LEVEL);
         if (glewInit() != GLEW_OK)
         {
             m_logger.critical("Failed to init OpeGL context");
             throw std::runtime_error{"Failed to init OpeGL context"};
         }
-        m_logger.set_level((spdlog::level::level_enum)SPDLOG_ACTIVE_LEVEL);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         m_logger.info("Renderer initialized");
     }
 
