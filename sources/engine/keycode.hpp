@@ -65,5 +65,13 @@ namespace logicario::engine
         N0,
         COUNT,
     };
+	enum class MouseButton
+	{
+		None,
+		Left,
+		Right,
+		Middle,
+		COUNT,
+	};
     inline const size_t KEYCODES_COUNT = static_cast<size_t>(KeyCode::COUNT);
 }

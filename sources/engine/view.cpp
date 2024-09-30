@@ -29,12 +29,12 @@ namespace logicario::engine
         auto size = m_viewImpl->getSize();
         glm::mat4 matrix{1.0f};
         matrix = glm::scale(matrix, glm::vec3{1.0f / size.x, 1.0f / size.y, 1.0f});
-        matrix = glm::scale(matrix, glm::vec3{m_zoom, m_zoom, 1.0f});
-        return matrix;
+        return matrix * getMatrix();
     }
 
     void View::setZoom(float zoom)
     {
+		setScale({zoom, zoom});
         m_zoom = zoom;
     }
 

@@ -119,6 +119,52 @@ namespace logicario::engine::platform
 		glDeleteVertexArrays(1, &vao);
 	}
 
+	void OglRenderer::draw(View& view, Rect& rect, Shader& shader, glm::vec4 color)
+	{
+		glm::mat4 viewMatrix = view.getViewMatrix();
+		//glm::mat4 viewMatrix{1.0f};
+
+		GLuint vbo, vao, ebo;
+
+		float vertices[] = 
+		{
+			rect.left, rect.top,
+			rect.right, rect.bottom,
+			rect.right, rect.top,
+			rect.left, rect.bottom,
+		};
+		unsigned int indices[] =
+		{
+			0, 1, 2,
+			0, 3, 1
+		};
+
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+
+		glGenBuffers(1, &ebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STREAM_DRAW);
+
+		view.bind();
+		shader.bind();
+
+		shader.set(color, "color");
+		shader.set(viewMatrix, "view");
+		glBindVertexArray(vao);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+		glDeleteBuffers(1, &vbo);
+		glDeleteBuffers(1, &ebo);
+		glDeleteVertexArrays(1, &vao);
+	}
+
 	void OglRenderer::drawBackground(View& view, Shader& shader, glm::vec4 color)
 	{
 		float vertices[] = 

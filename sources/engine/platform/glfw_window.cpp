@@ -50,6 +50,7 @@ namespace logicario::engine::platform
 		glfwSetFramebufferSizeCallback(m_windowHandle.get(), framebufferSizeCallback);
         glfwSetKeyCallback(m_windowHandle.get(), windowKeyCallback);
 		glfwSetCursorPosCallback(m_windowHandle.get(), cursorPosCallback);
+		glfwSetMouseButtonCallback(m_windowHandle.get(), windowMouseButtonCallback);
     }
 
     void GlfwWindow::update()
@@ -83,6 +84,13 @@ namespace logicario::engine::platform
         if (action == GLFW_REPEAT) return;
         GlfwWindow* wnd = (GlfwWindow*)glfwGetWindowUserPointer(window);
         wnd->m_input->setKey(key, action);
+    }
+
+	void GlfwWindow::windowMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+    {
+        if (action == GLFW_REPEAT) return;
+        GlfwWindow* wnd = (GlfwWindow*)glfwGetWindowUserPointer(window);
+        wnd->m_input->setMouseButton(button, action);
     }
 
 	void GlfwWindow::framebufferSizeCallback(GLFWwindow* window, int width, int height)

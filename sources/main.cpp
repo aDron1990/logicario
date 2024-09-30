@@ -5,6 +5,9 @@
 #include <engine/ui/main_view.hpp>
 #include <engine/ui/corner_view.hpp>
 #include <engine/ui/bordered_view.hpp>
+#include <engine/ui/rect_view.hpp>
+
+#include <quadtree.hpp>
 
 #include <GLFW/glfw3.h>
 #include <crossguid/guid.hpp>
@@ -16,6 +19,7 @@
 
 int main()
 {
+	srand(time(NULL));
     auto stdoutSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     spdlog::logger logger{"main", {stdoutSink}};
     logger.set_level((spdlog::level::level_enum)SPDLOG_ACTIVE_LEVEL);
@@ -23,7 +27,7 @@ int main()
     try
     {
         logicario::engine::platform::StdFilesystem filesystem{stdoutSink};
-        logicario::engine::platform::GlfwWindow window{{"logicario", 800, 600, stdoutSink}};
+        logicario::engine::platform::GlfwWindow window{{"logicario", 1024, 1024, stdoutSink}};
         bool run = true;
         auto windowClosedActionSub = window.Closed.add([&run]() { run = false; });
         auto& input = window.getInput();
@@ -35,47 +39,72 @@ int main()
                 if (key == logicario::engine::KeyCode::Esc) run = false;
             });
 
-        auto vertex = filesystem.loadText("resources/shaders/main/vertex.glsl").value();
-        auto fragment = filesystem.loadText("resources/shaders/main/fragment.glsl").value();
+        auto vertex = filesystem.loadText("resources/shaders/sprite/vertex.glsl").value();
+        auto fragment = filesystem.loadText("resources/shaders/sprite/fragment.glsl").value();
         auto& shader = renderer.createShader(vertex, fragment);
 
         auto b_vertex = filesystem.loadText("resources/shaders/background/vertex.glsl").value();
         auto b_fragment = filesystem.loadText("resources/shaders/background/fragment.glsl").value();
         auto& backgroundShader = renderer.createShader(b_vertex, b_fragment);
 
+        auto r_vertex = filesystem.loadText("resources/shaders/rect/vertex.glsl").value();
+        auto r_fragment = filesystem.loadText("resources/shaders/rect/fragment.glsl").value();
+        auto& rectShader = renderer.createShader(r_vertex, r_fragment);
+
         auto atlasImage = filesystem.loadImage("resources/images/atlas.png").value();
         auto& atlasTexture = renderer.createTexture(atlasImage);
         logicario::engine::Sprite emptySprite{atlasTexture, {0, 32, 0, 32}};
 
-        auto mainViewController = std::make_unique<logicario::engine::ui::MainView>(std::make_unique<logicario::engine::ui::BorderedView>(50));
-        auto& mainView = renderer.createView(std::move(mainViewController));
+        auto viewController = std::make_unique<logicario::engine::ui::MainView>();
+        auto& view = renderer.createView(std::move(viewController));
 
-        auto ac = input.MouseMoved.add(
-            [&](int x, int y)
+        std::vector<logicario::engine::Sprite> sprites;
+        emptySprite.setScale({0.2f, 0.2f});
+
+        QuadTree qtree{BoundyBox{{0, 0}, {1024, 1024}}};
+        std::function<void(QuadTree&)> renderQuadTree = [&](QuadTree& tree) -> void
+        {
+            auto aabb = tree.getAABB();
+            logicario::engine::Rect rect = {aabb.m_position.x - aabb.m_halfSize.x, aabb.m_position.x + aabb.m_halfSize.x, aabb.m_position.y - aabb.m_halfSize.y, aabb.m_position.y + aabb.m_halfSize.y};
+            renderer.draw(view, rect, rectShader, tree.color);
+            QuadTree* subTree;
+            subTree = tree.getChild(QuadTree::SubTreeType::LeftBottom);
+            if (subTree) renderQuadTree(*subTree);
+            subTree = tree.getChild(QuadTree::SubTreeType::LeftTop);
+            if (subTree) renderQuadTree(*subTree);
+            subTree = tree.getChild(QuadTree::SubTreeType::RightTop);
+            if (subTree) renderQuadTree(*subTree);
+            subTree = tree.getChild(QuadTree::SubTreeType::RightBottom);
+            if (subTree) renderQuadTree(*subTree);
+        };
+
+        auto ac2 = input.MouseButtonDowned.add(
+            [&](logicario::engine::MouseButton button)
             {
-                if (mainView.isMouseHover(x, y))
+                auto mousePos = input.getMousePos();
+                if (button == logicario::engine::MouseButton::Left && view.isMouseHover(mousePos.x, mousePos.y))
                 {
-                    auto viewPos = mainView.screenToViewCoords({x, y});
-                    logger.debug("view:  [{}, {}]", viewPos.x, viewPos.y);
+                    auto viewPos = view.screenToViewCoords({mousePos.x, mousePos.y});
+                    emptySprite.setPosition(viewPos);
+                    sprites.push_back(emptySprite);
+                    logger.debug("set sprite at: [{}, {}]", viewPos.x, viewPos.y);
+
+                    qtree.insert(viewPos);
+
                     return;
                 }
-                logger.debug("mouse: [{}, {}]", x, y);
             });
-
-        mainView.setZoom(6);
-        std::vector<logicario::engine::Sprite> sprites;
-        sprites.push_back(emptySprite);
-        emptySprite.setPosition({32, 0});
-        //sprites.push_back(emptySprite);
 
         while (run)
         {
             window.update();
             renderer.clear({0.2, 0.2, 0.2, 1.0});
-            renderer.drawBackground(mainView, backgroundShader, {0.8f, 0.8f, 0.8f, 1.0f});
+            renderer.drawBackground(view, backgroundShader, {0.7f, 0.7f, 0.7f, 1.0f});
+            logicario::engine::Rect rect{0, 512, 0, 512};
+            renderQuadTree(qtree);
             for (auto&& sprite : sprites)
             {
-                renderer.draw(mainView, sprite, shader);
+                renderer.draw(view, sprite, shader);
             }
             renderer.swap();
         }

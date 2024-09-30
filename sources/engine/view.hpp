@@ -3,13 +3,14 @@
 #include <engine/resource.hpp>
 #include <engine/view_impl.hpp>
 #include <engine/action.hpp>
+#include <engine/transform.hpp>
 #include <engine/ui/view_controller.hpp>
 
 #include <memory>
 
 namespace logicario::engine
 {
-    class View : virtual public Resource
+    class View : virtual public Resource, public Transform
     {
     public:
         using ViewImplPtr = std::unique_ptr<ViewImpl>;
